@@ -38,7 +38,8 @@ const CreateSnippet = () => {
       }));
 
       // Clear input fields
-      
+      setTitle("");
+      setCode("");
 
       alert(res.data.message);
     } catch (error) {
