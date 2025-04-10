@@ -1,66 +1,47 @@
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useEffect, useState } from "react";
 
-const CreateComment = ({ snippetId }) => {
+const CreateComment = ({ snippet }) => {
   const [text, setText] = useState("");
-  const [comments, setComments] = useState([]);
-
-  // Function to fetch comments
-  const fetchComments = async () => {
-    try {
-      const res = await axios.get(
-        `http://localhost:9000/api/v1/snippet/${snippetId}/comment`
-      );
-      setComments(res.data); // Ensure response is an array
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-    }
-  };
-
-  // Fetch comments when component mounts or snippetId changes
-  useEffect(() => {
-    fetchComments();
-  }, [snippetId]);
-
-  const addComment = async (e) => {
-    e.preventDefault();
-    if (!text.trim()) return; // Prevent adding empty comments
+ 
+  const handleComment = async (e) => {
+    e.preventDefault(); // Prevent the default form submission behavior
 
     try {
       const res = await axios.post(
-        `http://localhost:9000/api/v1/snippet/${snippetId}/comment`,
+        `http://localhost:8002/api/v1/snippets/${snippet.id}/comments`,
         { text }
       );
-
-      // Append new comment to state instead of re-fetching
-      setComments((prevComments) => [...prevComments, res.data]);
-
-      setText(""); // Clear input field
+      // console.log("Comment posted successfully:", res.data);
+      setText(""); // Clear the input field after successful submission
     } catch (error) {
-      console.error("Error adding comment:", error);
+      console.error("Error posting comment:", error);
     }
   };
 
+
   return (
-    <div className="mt-3">
+    <div>
       <ul>
-        {Array.isArray(comments) &&
-          comments.map((comment, index) => (
-            <li key={index} className="text-sm">
-              {comment.content || comment.text}
-            </li>
-          ))}
+        {snippet.comments.map((comment,index) => (
+          <li key={index} className="pl-3 text-sm">{`${index+1}. ${comment.content}`}</li>
+        ))}
       </ul>
-      <form onSubmit={addComment} className="flex mt-3 items-center gap-2">
+      <form
+        className="flex items-center justify-between mt-2"
+        onSubmit={handleComment}
+      >
         <input
-          type="text"
+          placeholder="Post comment..."
+          className="border rounded px-2 py-1 outline-0"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Add Comment"
-          className="border rounded px-2 text-sm py-1"
         />
-        <button type="submit" className="bg-black rounded text-white px-2 py-1">
-          Add
+        <button
+          type="submit"
+          className="px-2 py-1 rounded bg-black cursor-pointer text-white"
+        >
+          Post
         </button>
       </form>
     </div>
